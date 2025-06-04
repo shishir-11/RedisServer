@@ -44,6 +44,7 @@ public:
     std::vector<std::string> hkeys(const std::string& key);
     std::vector<std::string> hvals(const std::string& key);
     ssize_t hlen(const std::string& key);
+    bool hmset(const std::string& key, const std::vector<std::pair<std::string, std::string>>& fieldValues);
 
     // persistance: Dump/load the database from a file
     bool dump(const std::string& filename);
