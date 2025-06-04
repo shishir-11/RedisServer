@@ -23,6 +23,11 @@ RedisServer::RedisServer(int port): port{port}, server_socket{-1}, running{true}
 
 void RedisServer::shutdown(){
     running = false;
+    
+    if(persistance_thread.joinable()){
+        persistance_thread.join();
+    }
+
     if(server_socket!=-1){
         close(server_socket);
         if(!RedisDatabase::getInstance().dump("dump.my_rdb")){
@@ -33,6 +38,20 @@ void RedisServer::shutdown(){
     }
 
     std::cout<<"Server Shutdown\n";
+}
+
+void RedisServer::startPersistance(){
+    persistance_thread = std::thread([this](){
+        while(running){
+            std::this_thread::sleep_for(std::chrono::seconds(180));
+            // dump the database
+            if(!RedisDatabase::getInstance().dump("dump.my_rdb")){
+                std::cerr<<"Error Dumping Database\n";
+            }else{
+                std::cout<<"Database dumped to dump.my_rdb\n";
+            }
+        }
+    });
 }
 
 void RedisServer::run(){
@@ -65,6 +84,7 @@ void RedisServer::run(){
     std::vector<std::thread> threads;
     RedisCommandHandler cmdHandler;
     setupSignalHandler();  
+    startPersistance();
     while(running){
         int client_socket = accept(server_socket,nullptr,nullptr);
         if(client_socket<0){
