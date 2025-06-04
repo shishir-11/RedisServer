@@ -73,7 +73,6 @@ void RedisServer::run(){
             }
             break;
         }
-
         threads.emplace_back([client_socket,&cmdHandler](){
             char buffer[1024];
             while(true){

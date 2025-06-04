@@ -16,7 +16,7 @@ public:
     static RedisDatabase& getInstance();
 
     bool flushAll();
-
+    void removeExpired();
     void set(std::string key, std::string value);
     bool get(const std::string &key, std::string& value);
     std::vector<std::string> keys();
