@@ -201,3 +201,92 @@ bool RedisDatabase::lpop(const std::string& key, std::string& value) {
     }
     return false;
 }
+
+bool RedisDatabase::rpop(const std::string& key, std::string& value) {
+    std::lock_guard<std::mutex> lock(db_mutex);
+    auto it = list_store.find(key);
+    if (it != list_store.end() && !it->second.empty()) {
+        value = it->second.back();
+        it->second.pop_back();
+        return true;
+    }
+    return false;
+}
+
+bool RedisDatabase::lindex(const std::string& key, int index, std::string& value) {
+    std::lock_guard<std::mutex> lock(db_mutex);
+    auto it = list_store.find(key);
+    if (it == list_store.end()) 
+        return false;
+
+    const auto& lst = it->second;
+    if (index < 0)
+        index = lst.size() + index;
+    if (index < 0 || index >= static_cast<int>(lst.size()))
+        return false;
+    
+    value = lst[index];
+    return true;
+}
+
+bool RedisDatabase::lset(const std::string& key, int index, const std::string& value) {
+    std::lock_guard<std::mutex> lock(db_mutex);
+    auto it = list_store.find(key);
+    if (it == list_store.end()) 
+        return false;
+
+    auto& lst = it->second;
+    if (index < 0)
+        index = lst.size() + index;
+    if (index < 0 || index >= static_cast<int>(lst.size()))
+        return false;
+    
+    lst[index] = value;
+    return true;
+}
+
+int RedisDatabase::lrem(const std::string& key, int count, const std::string& value) {
+    std::lock_guard<std::mutex> lock(db_mutex);
+    int removed = 0;
+    auto it = list_store.find(key);
+    if (it == list_store.end()) 
+        return 0;
+
+    auto& lst = it->second;
+
+    if (count == 0) {
+        // Remove all occurrences
+        auto new_end = std::remove(lst.begin(), lst.end(), value);
+        removed = std::distance(new_end, lst.end());
+        lst.erase(new_end, lst.end());
+    } else if (count > 0) {
+        // Remove from head to tail
+        for (auto iter = lst.begin(); iter != lst.end() && removed < count; ) {
+            if (*iter == value) {
+                iter = lst.erase(iter);
+                ++removed;
+            } else {
+                ++iter;
+            }
+        }
+    } else {
+        // Remove from tail to head (count is negative)
+        // First collect indices in reverse to avoid iterator invalidation
+        std::vector<int> matching_indices;
+        for (int i = lst.size() - 1; i >= 0; --i) {
+            if (lst[i] == value) {
+                matching_indices.push_back(i);
+                if (++removed == -count) break;
+            }
+        }
+        // Reset counter to actual number removed
+        removed = matching_indices.size();
+        for (int idx : matching_indices) {
+            lst.erase(lst.begin() + idx);
+        }
+    }
+
+    return removed;
+}
+
+
