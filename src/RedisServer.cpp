@@ -105,15 +105,14 @@ void RedisServer::run(){
             }
             close(client_socket);
         });
-
-        for(auto& t:threads){
+    }
+    for(auto& t:threads){
             if(t.joinable()) t.join();
         }
 
-        if(RedisDatabase::getInstance().dump("dump.my_rdb")){
-            std::cout<<"Database Dumped to dump.my_rdb\n";
-        }else{
-            std::cerr<<"Error dumping Database\n";
-        }
+    if(RedisDatabase::getInstance().dump("dump.my_rdb")){
+        std::cout<<"Database Dumped to dump.my_rdb\n";
+    }else{
+        std::cerr<<"Error dumping Database\n";
     }
 }
