@@ -10,6 +10,7 @@
 #include<vector>
 #include<thread>
 #include<cstring>
+#include<signal.h>
 
 class RedisServer{
 public:
@@ -20,6 +21,8 @@ private:
     int port;
     int server_socket;
     std::atomic<bool> running;
+
+    void setupSignalHandler(); 
 };
 
 #endif
