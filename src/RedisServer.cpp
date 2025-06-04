@@ -25,7 +25,13 @@ void RedisServer::shutdown(){
     running = false;
     if(server_socket!=-1){
         close(server_socket);
+        if(!RedisDatabase::getInstance().dump("dump.my_rdb")){
+            std::cerr<<"Error Dumping Database\n";
+        }else{
+            std::cout<<"Database dumped to dump.my_rdb\n";
+        }
     }
+
     std::cout<<"Server Shutdown\n";
 }
 
@@ -88,7 +94,7 @@ void RedisServer::run(){
         if(RedisDatabase::getInstance().dump("dump.my_rdb")){
             std::cout<<"Database Dumped to dump.my_rdb\n";
         }else{
-            std::cerr<<"Error dumping Database\\n";
+            std::cerr<<"Error dumping Database\n";
         }
     }
 }
