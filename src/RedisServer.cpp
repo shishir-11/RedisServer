@@ -30,11 +30,6 @@ void RedisServer::shutdown(){
 
     if(server_socket!=-1){
         close(server_socket);
-        if(!RedisDatabase::getInstance().dump("dump.my_rdb")){
-            std::cerr<<"Error Dumping Database\n";
-        }else{
-            std::cout<<"Database dumped to dump.my_rdb\n";
-        }
     }
 
     std::cout<<"Server Shutdown\n";
@@ -43,7 +38,7 @@ void RedisServer::shutdown(){
 void RedisServer::startPersistance(){
     persistance_thread = std::thread([this](){
         while(running){
-            std::this_thread::sleep_for(std::chrono::seconds(180));
+            std::this_thread::sleep_for(std::chrono::seconds(20));
             // dump the database
             if(!RedisDatabase::getInstance().dump("dump.my_rdb")){
                 std::cerr<<"Error Dumping Database\n";
@@ -107,12 +102,6 @@ void RedisServer::run(){
         });
     }
     for(auto& t:threads){
-            if(t.joinable()) t.join();
-        }
-
-    if(RedisDatabase::getInstance().dump("dump.my_rdb")){
-        std::cout<<"Database Dumped to dump.my_rdb\n";
-    }else{
-        std::cerr<<"Error dumping Database\n";
+        if(t.joinable()) t.join();
     }
 }
