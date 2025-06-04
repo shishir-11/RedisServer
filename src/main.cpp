@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
             if(!RedisDatabase::getInstance().dump("dump.my_rdb")){
                 std::cerr<<"Error Dumping Database\n";
             }else{
-                std::cout<<"Database dumped to dumpy.my_rdb\n";
+                std::cout<<"Database dumped to dump.my_rdb\n";
             }
         }
     });

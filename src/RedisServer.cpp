@@ -7,7 +7,7 @@ static RedisServer* globalServer = nullptr;
 // void RedisServer::setupSignalHandler
 void signalHandler(int signum){
     if(globalServer){
-        std::cout<<"Shutting down...\nSignal caught "<<signum<<"\n";
+        std::cout<<"\nShutting down...\nSignal caught "<<signum<<"\n";
         globalServer->shutdown();
     }
     exit(signum);
@@ -15,7 +15,6 @@ void signalHandler(int signum){
 
 void RedisServer::setupSignalHandler(){
     signal(SIGINT,signalHandler);
-
 }
 
 RedisServer::RedisServer(int port): port{port}, server_socket{-1}, running{true}{
@@ -59,7 +58,7 @@ void RedisServer::run(){
 
     std::vector<std::thread> threads;
     RedisCommandHandler cmdHandler;
-
+    setupSignalHandler();  
     while(running){
         int client_socket = accept(server_socket,nullptr,nullptr);
         if(client_socket<0){
