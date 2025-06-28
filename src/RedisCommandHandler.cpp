@@ -4,6 +4,8 @@
 std::vector<std::string> parseRespCommand(const std::string &input){
     std::vector<std::string> tokens;
     if(input.empty()) return tokens;
+    // std::cout<<input<<" ";
+
 
     // if it doesnt start with * fallbackk to splitting with whitespace
     if(input[0]!='*'){
@@ -244,8 +246,19 @@ std::string RedisCommandHandler::processCommand(const std::string& commandLine){
     //connect to db
     RedisDatabase& db = RedisDatabase::getInstance();
     //check commands
-
-    if(cmd=="PING"){
+    if(cmd=="INFO"){
+        std::string info = 
+        "# Server\r\n"
+        "redis_version:0.1.0\r\n"
+        "tcp_port:6379\r\n"
+        "uptime_in_seconds:1234\r\n"
+        "# Clients\r\n"
+        "connected_clients:1\r\n"
+        "# Memory\r\n"
+        "used_memory:2048\r\n";
+        response << "$" << info.size() << "\r\n" << info << "\r\n";
+    }
+    else if(cmd=="PING"){
         response<<"+PONG\r\n";
     }else if(cmd=="ECHO"){
         if(tokens.size()<2) response<<"-Error: Echo requires a message\r\n";
