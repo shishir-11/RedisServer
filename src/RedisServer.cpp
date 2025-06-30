@@ -38,7 +38,7 @@ void RedisServer::shutdown(){
 void RedisServer::startPersistance(){
     persistance_thread = std::thread([this](){
         while(running){
-            std::this_thread::sleep_for(std::chrono::seconds(20));
+            std::this_thread::sleep_for(std::chrono::seconds(300));
             // dump the database
             if(!RedisDatabase::getInstance().dump("dump.my_rdb")){
                 std::cerr<<"Error Dumping Database\n";
